@@ -116,6 +116,11 @@ export default function App() {
 						<p className="sr-only" role="status">
 							{message}
 						</p>
+						{busy && (
+							<p role="status" className="muted mb-4">
+								Saving changes…
+							</p>
+						)}
 						{/* Loading, populated, and empty/search-empty views are mutually exclusive.
             Each keyed card uses its stable API ID. Delete first asks for confirmation;
             Edit passes the complete note into the form. Pending writes disable actions. */}
@@ -124,7 +129,7 @@ export default function App() {
 								Gathering your thoughts…
 							</p>
 						) : filtered.length ? (
-							<div className="grid">
+							<div className="notes-grid">
 								{filtered.map((note) => (
 									<article
 										className="note"

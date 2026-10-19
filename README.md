@@ -1,133 +1,81 @@
-# Fieldnotes - Notes Dashboard
+# Fieldnotes Notes Dashboard
 
-A small React application for capturing, editing, searching, and deleting notes. I kept the structure deliberately lean: a typed API client, one shared notes provider, and a modal editor. The aim is to make the main flow easy to follow without adding infrastructure the exercise does not need.
+A React and TypeScript notes dashboard built for the KD AI Engineering Lead Assessment. It supports API-backed CRUD, optimistic updates with rollback, search, categories, cover images, and light/dark themes.
 
-## Run it
+## Run locally
 
-Install Node.js 22.12 or newer (Node 24 also works), then extract the ZIP and open a terminal in `notes-dashboard`:
+Use Node.js 22.12 or newer. From the repository root:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. No Python installation, API key, environment file, or separate backend process is required. Use localhost or HTTPS because the mock API uses a service worker. Do not open `index.html` directly from disk.
+Open http://127.0.0.1:5173. No backend process, API key, or environment file is needed. Use localhost or HTTPS because Mock Service Worker needs a secure context. Do not open index.html directly from disk.
 
 ```sh
-npm test          # React Testing Library integration tests
-npm run build    # Strict TypeScript check and production bundle
-npm run preview  # Serve the production build locally
+npm test          # 31 tests across seven suites
+npm run build    # Strict TypeScript check and Vite production bundle
+npm run preview  # Serve the production build; use the printed URL
 ```
 
-The committed lockfile pins the resolved dependencies. The generated MSW worker is included in `public/`.
+## Features
 
-## What is included
+- Create, read, edit, and delete notes through fetch and Mock Service Worker (MSW).
+- Immediate optimistic changes for create/edit/delete, temporary create IDs, server reconciliation, and rollback if a request fails.
+- Loading and saving states, request timeout, retained drafts on save failure, and retry.
+- Case-insensitive search across title, content, and category label.
+- Seven starter notes with distinct bundled cover images and a full-width technical hero.
+- Ten categories with stable accent colors and editable category selection.
+- Optional JPEG/PNG/WebP uploads with preview, replacement, removal, and automatic resizing.
+- Dark mode by default, a light/dark toggle, and a persistent preference.
+- Responsive Tailwind layouts, native dialogs, labeled inputs, focus styles, and live status messages.
 
-- Notes have a unique string ID, title, and content.
-- Dark theme by default, with an accessible light/dark toggle and a saved browser preference.
-- Responsive cards, add/edit dialog, and explicit delete confirmation.
-- GET, POST, PUT, and DELETE requests through `fetch` and Mock Service Worker.
-- Shared state through React Context and hooks; no class components.
-- Initial loading, pending mutation controls, request timeout, errors, and retry.
-- Case-insensitive search across titles and content, with a no-results state.
-- Browser persistence, so notes survive a refresh.
-- Labeled fields, native modal focus containment, Escape support, visible keyboard focus, and status announcements.
-- Required fields and length limits checked in both the editor and mock API.
+## Decisions and structure
 
-## Main decisions
+**React + TypeScript + Vite** keep the client small and the contracts explicit. Functional components and hooks handle UI state; `NotesProvider` owns the shared collection, requests, and errors. Drafts, search, and editor selection remain local.
 
-**React + TypeScript + Vite.** This is a small app, so a straightforward client-side setup fits. TypeScript makes the note and API contracts explicit.
+**Tailwind CSS** is compiled through `@tailwindcss/vite`. `src/styles.css` imports Tailwind and uses `@apply` to compose component layouts and controls. Custom CSS remains for shared theme variables, the hero gradient, native pseudo-elements, and category accents. `notes-grid` uses Tailwind responsive utilities; keeping its semantic name avoids colliding with Tailwind's `grid` utility.
 
-**Context for shared notes.** `NotesProvider` owns loading, errors, mutations, and the canonical list returned by the API. Search and editor drafts stay local to the UI. A mutation lock prevents duplicate submissions, and a request sequence prevents stale reads from replacing newer loads during Strict Mode's effect checks.
+**MSW** is the assessment's allowed mock API option. Components do not read or write notes directly to storage. The browser worker intercepts fetch; the same handlers run through MSW's Node adapter in tests. The worker intentionally also starts in production preview so the demo remains self-contained.
 
-**Mock Service Worker for the API.** The assessment allows a mock API. MSW intercepts real HTTP requests, so the components never read or write browser storage directly. The mock handlers use localStorage as their persistence adapter. They simulate latency, validate payloads, generate UUIDs, and return appropriate status codes. The same handlers run in tests through MSW's Node adapter.
+**Optimistic writes** snapshot the current list, apply a provisional change before awaiting the API, and restore the snapshot on rejection. Creates replace the temporary ID with the returned server ID. A synchronous ref lock serializes writes, and a load sequence invalidates stale GET responses. The form remains open while saving and keeps its draft on failure; confirmation closes it. A visible saving indicator distinguishes provisional state from confirmation. This is a client-side interaction guard, not server idempotency or cross-tab conflict resolution.
 
-**Confirmed writes.** I update the list after the API succeeds. Optimistic updates are optional, and for this exercise predictable failure behavior is more useful than adding rollback logic. Failed saves retain the draft; failed deletes keep the card visible.
+| File | Responsibility |
+| --- | --- |
+| `src/context/NotesContext.tsx` | Shared notes, optimistic mutations, reconciliation and rollback |
+| `src/api/notes.ts` | Typed fetch client, HTTP errors and ten-second timeout |
+| `src/mocks/handlers.ts` | HTTP handlers, validation, browser persistence and seed migrations |
+| `src/App.tsx` | Dashboard, search, card actions and theme toggle |
+| `src/components/NoteEditor.tsx` | Controlled draft, category and image controls |
+| `src/categories.ts` | Category IDs, colors and relevant random selection |
+| `src/hooks/useTheme.ts` | Saved theme and document palette |
+| `src/utils/images.ts` | Image resizing and accepted image validation |
+| `src/styles.css` | Tailwind compositions and custom design tokens |
 
-**Plain CSS.** The visual design adapts Karbon Digital’s cyan (#14AFF1), yellow (#FFBE11), black, white, and pale gray (#F7F7FA) palette into light and dark themes, with readable tinted cards and layouts that collapse from three columns to one. No UI framework or external fonts are needed.
+## API and persistence
 
-## Structure
+| Method | Route | Success |
+| --- | --- | --- |
+| GET | `/api/notes` | 200 and Note[] |
+| POST | `/api/notes` | 201 and created Note |
+| PUT | `/api/notes/:id` | 200 and updated Note |
+| DELETE | `/api/notes/:id` | 204 without a body |
 
-```text
-src/
-  api/notes.ts                 Fetch client and request timeout
-  context/NotesContext.tsx     Shared notes state and mutation coordination
-  components/NoteEditor.tsx    Controlled add/edit dialog
-  mocks/handlers.ts           Mock HTTP API and storage adapter
-  App.tsx                     Dashboard, search, cards, delete confirmation
-  App.test.tsx                User-flow and failure-path tests
-  test-setup.ts               MSW server and DOM test setup
-  types.ts                    Shared contract and validation limits
-  styles.css                  Responsive styling
-```
+POST/PUT accept `{ title, content, category?, image? }`; the API owns IDs. Titles must have 1-100 trimmed characters; content 1-5000. Category IDs are validated. Invalid requests return 400, missing IDs 404, and storage failures 500, with `{ message }` errors. The client types responses but does not validate response schemas at runtime.
 
-## API contract
+Data is saved per browser/origin in localStorage. First reads initialize seven examples; versioned backfills preserve edited notes and later deletions. Categories are selected once from relevant keyword-based choices, then saved. Untouched starter copy gains matching guidance; user copy is not rewritten. Clearing site storage resets the demo. Multiple localStorage writes are not transactional.
 
-| Method | Route            | Success             |
-| ------ | ---------------- | ------------------- |
-| GET    | `/api/notes`     | 200, `Note[]`       |
-| POST   | `/api/notes`     | 201, created `Note` |
-| PUT    | `/api/notes/:id` | 200, updated `Note` |
-| DELETE | `/api/notes/:id` | 204, no body        |
+Uploads are limited to 10 MB, resized to a maximum 1000-pixel edge, and encoded as WebP. Results over 400000 encoded characters are rejected. Image bytes travel in the note's API payload. This suits a small demo; browser storage is finite. Generated image provenance and prompts are in [ASSETS.md](ASSETS.md).
 
-POST/PUT accept `{ "title": "...", "content": "..." }`. The API owns IDs. Titles must contain 1-100 trimmed characters; content must contain 1-5000. Errors return `{ "message": "..." }`: invalid input is 400, missing notes are 404, and storage failures are 500.
+## Testing and limits
 
-## Testing
+The 31 tests cover dashboard CRUD/search and failures, editor uploads/categories, themes, image processing, seed migration, category rules, and eight deferred-response optimistic tests. Those explicitly check pre-response changes, create-ID reconciliation, rollback for all three writes, the mutation lock, and stale-read invalidation.
 
-The original five integration tests exercise the real API client against MSW:
+Native dialog methods and image processing are partly shimmed/mocked in jsdom. A full browser visual/accessibility review remains a manual check. No full end-to-end suite or CI workflow is included. Optimistic rollback assumes serialized writes; timeouts can leave server outcomes uncertain, so production needs idempotency, refetch/reconciliation, and conflict handling.
 
-1. Load, create, edit, search, and delete, including persistence assertions.
-2. Failed create preserves the draft and succeeds on retry.
-3. Initial load failure can be retried.
-4. Failed deletion leaves the original note visible.
-5. Whitespace-only drafts are rejected.
+This is a single-user mock, without authentication or a shared database. A production version should remove the worker, implement the same API contract with authorization and durable storage, move image bytes to object storage, and add transactional migrations and browser tests.
 
-`npm test` and `npm run build` passed during preparation. The dialog methods are shimmed for jsdom; the browser itself supplies native dialog behavior. A full browser visual/accessibility review remains a manual check. Four additional theme tests cover the visible toggle, persistence across remounts, invalid saved preferences, and unavailable storage.
+## React Native adaptation
 
-Quick manual check: create a note, refresh, edit it, search for a word in its content, then delete it. Resize to a phone width and navigate the editor with the keyboard.
-
-## Scope and tradeoffs
-
-This is a single-user assessment app. Data is stored per browser and origin, not in a shared database. Two sample notes appear before the first successful write; deleting everything persists an empty list. Clearing site storage resets the demo. Browser storage must be available. Multi-tab synchronization, authentication, pagination, conflict resolution, and a real backend are outside this submission.
-
-The mock worker intentionally starts in both development and preview builds so a reviewer can run the complete demo. Before connecting a real backend, remove worker startup from `main.tsx` and implement the same HTTP contract on the server. A deployed product should use server-side persistence and authorization.
-
-## Adapting to React Native
-
-I would keep the note types and API client, replace the card grid with a `FlatList`, use `TextInput` for the editor, and present it through a native modal or navigation screen. Context can stay initially. The browser service worker would be replaced with a real API or a native-compatible mock, and AsyncStorage could support an offline cache. I would also account for the keyboard, safe areas, touch targets, screen-reader labels, and offline retry before adding more features.
-
-## Reading the source
-
-The source includes function documentation and inline comments explaining request handling, shared state, mock persistence, form events, rendering branches, responsive styling, and test setup. `package.json` defines the run/build/test commands; `tsconfig.json` enables strict types and the browser/JSX compilation settings. These JSON files remain valid JSON, which does not support comments. `package-lock.json` and `public/mockServiceWorker.js` are generated dependency files and should not be hand-edited.
-
-## Hero background
-
-The full-width intro uses `public/images/technical-hero.webp`, an original image created with the built-in image generation tool and compressed to WebP. It is bundled locally, so the app does not depend on an external image host. A dark gradient keeps the live headline readable in both themes; the background is decorative and contains no text.
-
-Generation prompt: "Use case: stylized-concept. Asset type: full-width website hero background for a polished technical notes dashboard. Create a classy restrained cinematic abstract 3D architectural composition of graphite glass planes and precise microetched circuit traces, subtle fiber-optic cyan light (#14AFF1), a few tiny warm gold highlights (#FFBE11), deep charcoal black. Landscape panoramic 3:1 composition. Keep the LEFT HALF very dark, quiet and nearly empty for overlaid white headline. Concentrate elegant geometric technical detail and depth on the right half. Sophisticated studio lighting, fine material detail, premium enterprise technology aesthetic, minimal tasteful, no text no logos no watermark no characters, avoid busy neon cyberpunk. Save the generated asset locally for inclusion in the website repository."
-
-## Images on notes
-
-Both Add and Edit offer an optional JPEG/PNG/WebP upload, preview, replacement, and removal. Files up to 10 MB are decoded locally, resized to a maximum 1000-pixel edge, and encoded as WebP. Encoded images over 400,000 characters are rejected with a readable message. Saving sends the image with the note through POST/PUT; the mock API validates and persists it. This is intended for a small demo collection: browser storage is finite, so a production API should store images in object storage and return URLs.
-
-The two starter notes have bundled cover images. Previously saved starter notes receive their default cover when they do not yet have an image field; explicit `null` preserves image removal. Other existing notes remain intact. `public/images/note-workspace.webp` was created using the built-in image generation tool with the prompt: "Wide landscape 3:2 original premium editorial still life for a technical notes card: minimalist dark graphite desk with a blank open notebook, sleek glass architectural cube and a thin cyan illuminated line, restrained gold accent, soft studio light, elegant material textures, calm composition, no readable text, no logo, no watermark. Charcoal cyan white and tiny gold palette matching modern enterprise software." The second starter cover uses `public/images/note-small-steps.webp`, an original image created with the built-in image generation tool: "Classy editorial landscape of five graphite stone steps ascending toward an illuminated glass cube, thin cyan edge lighting and a restrained gold highlight; a quiet metaphor for steady progress; no text, logos, or people." Existing starter notes using the old bundled hero cover automatically receive this image; uploaded covers and explicit image removals are preserved.
-
-Image tests cover API persistence/removal, rejected image formats and URLs, resizing and URL cleanup, plus upload preview/save and removal through the editor.
-
-## Expanded starter collection
-
-Five additional examples bring the starter dashboard to seven notes: Make space for focus; Build, measure, learn; Ideas worth keeping; Design for clarity; and Ship something useful. Each has its own original generated WebP cover in `public/images/note-{focus,learn,ideas,clarity,ship}.webp`. Existing collections receive missing new examples once, matched by stable IDs. Existing edits and uploaded images stay intact, and deleted examples do not return on refresh.
-
-All five covers were created with the built-in image generation tool using this common prompt: "Create an original premium editorial 3:2 landscape cover image for a technical notes dashboard. Subject: [subject below]. Refined photorealistic 3D still life, classy architectural materials, tactile graphite and glass, soft cinematic studio illumination, charcoal background with cyan #14AFF1 and very restrained gold #FFBE11. Crisp purposeful composition. No text no logos no watermark no people. Visually distinct subject, understated enterprise design."
-
-- Focus: A single sculptural graphite ring framing a softly glowing cyan sphere, dark stone plinth, quiet empty space, focus and attention.
-- Learn: An elegant sequence of three translucent glass prisms with thin cyan light passing between them, a small gold intersection, iteration and discovery.
-- Ideas: Three delicate floating glass tiles with tiny luminous gold points and cyan edge light above a dark reflective surface, captured ideas.
-- Clarity: Precisely aligned translucent glass panels forming a simple geometric doorway, cyan edges, warm gold light beyond, clarity and intentional design.
-- Ship: A small flawless brushed graphite cube resting at the end of an architectural runway, cyan guiding lines and a restrained gold edge, completion and purposeful delivery.
-
-## Categories and card colors
-
-Ten categories own stable accent colors: Ideas (cyan), Focus (turquoise), Learning (blue), Experiments (violet), Design (lilac), Engineering (mint), Delivery (gold), Planning (orange), Product (pink), and Reflection (slate). The category name appears on each card and controls its top border and label dot. Searching and reordering never change the color. Category labels use neutral text for readability in both themes.
-
-Starter notes receive a random category from choices relevant to their existing text, plus a matching sentence of guidance. Assignments are saved once rather than randomized on each render. Legacy notes gain a category without changing user-edited copy. Add starts with a random category; Add/Edit both allow an explicit choice. Custom content is always controlled by the user. The API validates category IDs and persists category changes; search includes the category label.
+Reuse the types, API contract, and category metadata. Replace CSS Grid with FlatList, inputs with TextInput, and dialog with a native modal/navigation screen. Replace browser MSW/canvas with a real API or native-compatible mocks and an image picker/resizer. Consider AsyncStorage or a local database for offline data, plus safe areas, keyboard avoidance, touch targets, and screen-reader behavior.

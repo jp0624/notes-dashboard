@@ -22,10 +22,20 @@ interface NotesState {
 }
 // Null distinguishes a missing provider from a legitimately empty notes list.
 const Context = createContext<NotesState | null>(null);
-/** Fetch notes on mount and expose confirmed API results to descendants. */
+/** Fetch notes on mount and expose optimistic API mutations to descendants. */
 export function NotesProvider({ children }: { children: ReactNode }) {
 	// React state drives rendering; loading covers reads and busy covers writes.
 	const [notes, setNotes] = useState<Note[]>([]);
+	// Mirror the latest collection synchronously so snapshots do not depend on render timing.
+	const notesRef = useRef<Note[]>([]);
+	const updateNotes = useCallback(
+		(next: Note[] | ((current: Note[]) => Note[])) => {
+			const result = typeof next === "function" ? next(notesRef.current) : next;
+			notesRef.current = result;
+			setNotes(result);
+		},
+		[],
+	);
 	const [loading, setLoading] = useState(true);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -35,19 +45,20 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 	const loadSequence = useRef(0);
 	/** Fetch a fresh list; ignore responses invalidated by cleanup or a newer read. */
 	const reload = useCallback(async () => {
+		if (locked.current) return;
 		const sequence = ++loadSequence.current;
 		setLoading(true);
 		setError(null);
 		try {
 			const result = await notesApi.list();
-			if (sequence === loadSequence.current) setNotes(result);
+			if (sequence === loadSequence.current) updateNotes(result);
 		} catch (e) {
 			if (sequence === loadSequence.current)
 				setError(e instanceof Error ? e.message : "Could not load notes.");
 		} finally {
 			if (sequence === loadSequence.current) setLoading(false);
 		}
-	}, []);
+	}, [updateNotes]);
 	// Load on mount. Cleanup invalidates the request, including Strict Mode replays.
 	useEffect(() => {
 		void reload();
@@ -55,10 +66,14 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 			loadSequence.current++;
 		};
 	}, [reload]);
-	/** Serialize writes and centralize pending state, failure messages, and cleanup. */
+	/** Serialize optimistic writes; a failed mutation restores its complete pre-write snapshot. */
 	async function mutate(action: () => Promise<void>) {
 		if (locked.current) return false;
 		locked.current = true;
+		const snapshot = notesRef.current;
+		// Invalidate any older reads before applying a provisional write.
+		loadSequence.current++;
+		setLoading(false);
 		setBusy(true);
 		setError(null);
 		// Returning false leaves the editor draft or deletion confirmation available.
@@ -66,6 +81,7 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 			await action();
 			return true;
 		} catch (e) {
+			updateNotes(snapshot);
 			setError(
 				e instanceof Error
 					? e.message
@@ -77,24 +93,29 @@ export function NotesProvider({ children }: { children: ReactNode }) {
 			setBusy(false);
 		}
 	}
-	/** Choose create/update by ID, then immutably merge the confirmed server result. */
+	/** Apply a provisional create/edit immediately, then reconcile the authoritative API record. */
 	const save = (input: NoteInput, id?: string) =>
 		mutate(async () => {
+			const optimisticId = id ?? `pending-${crypto.randomUUID()}`;
+			const provisional: Note = { ...input, id: optimisticId };
+			updateNotes((current) =>
+				id
+					? current.map((note) => (note.id === id ? provisional : note))
+					: [provisional, ...current],
+			);
 			const result = id
 				? await notesApi.update(id, input)
 				: await notesApi.create(input);
-			// Functional state updates use the latest collection rather than a stale closure.
-			setNotes((current) =>
-				id
-					? current.map((n) => (n.id === id ? result : n))
-					: [result, ...current],
+			// Replace the temporary ID and normalized fields instead of appending a duplicate.
+			updateNotes((current) =>
+				current.map((note) => (note.id === optimisticId ? result : note)),
 			);
 		});
-	/** Keep the card visible until deletion succeeds on the API. */
+	/** Hide a deleted card immediately; mutate restores the snapshot if DELETE rejects. */
 	const remove = (id: string) =>
 		mutate(async () => {
+			updateNotes((current) => current.filter((note) => note.id !== id));
 			await notesApi.remove(id);
-			setNotes((current) => current.filter((n) => n.id !== id));
 		});
 	// Descendants receive the same collection and mutation status.
 	return (

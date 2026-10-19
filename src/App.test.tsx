@@ -1,5 +1,5 @@
 /** Integration coverage: interact as a user and let fetch reach the mock HTTP API. */
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
@@ -28,6 +28,9 @@ describe("Notes dashboard through the API", () => {
 		);
 		await user.click(screen.getByRole("button", { name: "Save note" }));
 		await screen.findByRole("heading", { name: "Release checklist" });
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
 		expect(JSON.parse(localStorage.getItem("fieldnotes.notes.v1")!)).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({ title: "Release checklist" }),
@@ -40,6 +43,9 @@ describe("Notes dashboard through the API", () => {
 		await user.type(screen.getByLabelText("Title"), "Ready to ship");
 		await user.click(screen.getByRole("button", { name: "Save note" }));
 		await screen.findByRole("heading", { name: "Ready to ship" });
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
 		await user.type(screen.getByRole("searchbox"), "REGRESSION");
 		expect(screen.getAllByRole("article")).toHaveLength(1);
 		await user.click(
@@ -47,6 +53,9 @@ describe("Notes dashboard through the API", () => {
 		);
 		await user.click(screen.getByRole("button", { name: "Confirm delete" }));
 		await screen.findByText("No notes match your search.");
+		await waitFor(() =>
+			expect(screen.queryByText("Saving changes…")).not.toBeInTheDocument(),
+		);
 		expect(
 			JSON.parse(localStorage.getItem("fieldnotes.notes.v1")!),
 		).not.toEqual(
@@ -76,6 +85,9 @@ describe("Notes dashboard through the API", () => {
 		server.resetHandlers();
 		await user.click(screen.getByRole("button", { name: "Save note" }));
 		await screen.findByRole("heading", { name: "Keep my draft" });
+		await waitFor(() =>
+			expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+		);
 	});
 	// Simulate a failed initial GET and verify the visible retry control recovers.
 	it("allows retry after a failed initial load", async () => {
@@ -91,7 +103,7 @@ describe("Notes dashboard through the API", () => {
 		await user.click(screen.getByRole("button", { name: "Retry loading" }));
 		await screen.findByRole("heading", { name: "A little room to think" });
 	});
-	// A failed DELETE must never remove the card from the confirmed local collection.
+	// A failed DELETE restores the provisionally removed card from its snapshot.
 	it("keeps a note visible when deletion fails", async () => {
 		const user = userEvent.setup();
 		mount();

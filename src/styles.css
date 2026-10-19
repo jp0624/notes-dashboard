@@ -1,3 +1,6 @@
+/* Tailwind compiles these utility compositions at build time; theme tokens stay shared. */
+@import "tailwindcss" source("./");
+
 /* Karbon Digital's site palette: cyan #14aff1, yellow #ffbe11, black,
    white, and #f7f7fa. Dark surfaces and tinted cards adapt it for the dashboard. */
 :root {
@@ -46,16 +49,10 @@
 	--error-bg: #f7ded7;
 }
 .header-actions {
-	display: flex;
-	align-items: center;
-	gap: 20px;
+	@apply flex items-center gap-5;
 }
 .theme-toggle {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	white-space: nowrap;
-	min-height: 44px;
+	@apply inline-flex items-center gap-2 whitespace-nowrap min-h-11;
 }
 input::placeholder,
 textarea::placeholder {
@@ -80,7 +77,7 @@ textarea::placeholder {
 	box-sizing: border-box;
 }
 body {
-	margin: 0;
+	@apply m-0;
 }
 button,
 input,
@@ -88,6 +85,7 @@ textarea {
 	font: inherit;
 }
 button {
+	@apply rounded-lg font-semibold disabled:opacity-50 disabled:cursor-wait;
 	cursor: pointer;
 	border: 1px solid var(--primary);
 	background: var(--primary);
@@ -131,13 +129,9 @@ header {
 	border-bottom: 1px solid var(--border);
 }
 .brand {
+	@apply flex items-center gap-2.5 font-bold no-underline;
 	font-size: 25px;
-	font-weight: 700;
-	text-decoration: none;
 	color: inherit;
-	display: flex;
-	align-items: center;
-	gap: 10px;
 	letter-spacing: -1px;
 }
 .brand-icon {
@@ -160,9 +154,7 @@ main {
 	width: 100%;
 }
 .workspace {
-	max-width: 1280px;
-	margin: auto;
-	padding: 28px 6% 0;
+	@apply max-w-[1280px] mx-auto px-[6%] pt-7;
 }
 /* A dark overlay protects the headline in both themes; the image is decorative. */
 .intro {
@@ -181,12 +173,9 @@ main {
 	border-bottom: 1px solid var(--border);
 }
 .intro-inner {
-	max-width: 1280px;
-	margin: auto;
+	@apply max-w-[1280px] mx-auto flex items-center;
 	padding: 84px 6%;
 	min-height: 420px;
-	display: flex;
-	align-items: center;
 }
 .intro .eyebrow {
 	color: #14aff1;
@@ -220,10 +209,7 @@ h1 span {
 }
 /* Collection heading, search, and primary action. */
 .toolbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 20px;
+	@apply flex justify-between items-center gap-5;
 	border-top: 1px solid var(--border);
 	padding: 25px 0;
 }
@@ -240,8 +226,7 @@ h2 {
 	margin-left: 8px;
 }
 .tools {
-	display: flex;
-	gap: 10px;
+	@apply flex gap-2.5;
 }
 .tools input {
 	width: 235px;
@@ -249,21 +234,16 @@ h2 {
 	font-size: 13px;
 }
 /* Responsive card grid; each card uses a flex column to align actions. */
-.grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 18px;
+.notes-grid {
+	@apply grid grid-cols-1 min-[541px]:grid-cols-2 min-[851px]:grid-cols-3 gap-[18px];
 }
 /* Neutral card surfaces match the workspace; restrained brand stripes add variety
    without turning the notes into unrelated blocks of color. */
 .note {
+	@apply flex flex-col rounded-[10px] p-[25px];
 	--card-accent: #14aff1;
 	background: var(--surface);
-	border-radius: 10px;
-	padding: 25px;
 	min-height: 270px;
-	display: flex;
-	flex-direction: column;
 	border: 1px solid var(--card-border);
 	border-top: 3px solid var(--card-accent);
 	box-shadow: var(--card-shadow);
@@ -284,6 +264,7 @@ h2 {
 	background: var(--card-accent);
 }
 .note-label {
+	@apply uppercase inline-flex items-center;
 	font-size: 9px;
 	letter-spacing: 2px;
 	color: var(--muted);
@@ -297,22 +278,16 @@ h2 {
 	overflow-wrap: anywhere;
 }
 .note-content {
-	white-space: pre-wrap;
+	@apply whitespace-pre-wrap text-sm;
 	overflow-wrap: anywhere;
-	font-size: 14px;
 	margin: 0 0 28px;
 	color: var(--muted);
 }
 .note-actions {
-	margin-top: auto;
-	display: flex;
-	justify-content: space-between;
-	gap: 10px;
-	align-items: center;
+	@apply mt-auto flex justify-between items-center gap-2.5 flex-wrap;
 	border-top: 1px solid var(--card-border);
 	padding-top: 13px;
 	font-size: 12px;
-	flex-wrap: wrap;
 }
 /* Lightweight inline actions and secondary/destructive variants. */
 .text-button {
@@ -326,7 +301,7 @@ h2 {
 	color: var(--danger);
 }
 .secondary {
-	background: transparent;
+	@apply bg-transparent;
 	color: var(--text);
 	border-color: var(--border);
 }
@@ -355,6 +330,7 @@ dialog::backdrop {
 	background: #00000099;
 }
 dialog {
+	@apply m-auto;
 	width: min(540px, calc(100% - 30px));
 	border: 1px solid var(--border);
 	border-radius: 14px;
@@ -377,9 +353,7 @@ dialog textarea {
 	resize: vertical;
 }
 .editor-heading {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	@apply flex items-center justify-between;
 }
 .icon {
 	background: transparent;
@@ -389,19 +363,15 @@ dialog textarea {
 	padding: 0 6px;
 }
 .muted {
-	font-size: 13px;
+	@apply text-[13px];
 	color: var(--muted);
 }
 .counter {
-	font-size: 11px;
-	text-align: right;
+	@apply text-[11px] text-right;
 	color: var(--muted);
 }
 .editor-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	margin-top: 20px;
+	@apply flex justify-end gap-2.5 mt-5;
 }
 /* Footer totals and visually hidden accessibility text. */
 footer {
@@ -426,9 +396,6 @@ footer {
 }
 /* Tablet: reduce grid columns and stack the toolbar. */
 @media (max-width: 850px) {
-	.grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
 	.toolbar {
 		align-items: start;
 		flex-direction: column;
@@ -455,9 +422,6 @@ footer {
 	.intro {
 		background-position: 60% center;
 	}
-	.grid {
-		grid-template-columns: 1fr;
-	}
 	.tools button {
 		padding: 10px 14px;
 		white-space: nowrap;
@@ -483,15 +447,12 @@ footer {
 	border-radius: 7px 7px 0 0;
 }
 .image-preview {
-	display: grid;
-	gap: 10px;
+	@apply grid gap-2.5;
 	margin: 15px 0;
 }
 .image-preview img {
-	width: 100%;
+	@apply w-full object-contain rounded-lg;
 	max-height: 220px;
-	object-fit: contain;
-	border-radius: 8px;
 	background: var(--input);
 }
 .image-preview button {
@@ -513,9 +474,7 @@ input[type="file"]::file-selector-button {
 
 /* Category is readable text as well as a colored border/dot; color is never the sole cue. */
 .note-label {
-	text-transform: uppercase;
-	display: inline-flex;
-	align-items: center;
+	@apply uppercase inline-flex items-center;
 }
 select {
 	font: inherit;
