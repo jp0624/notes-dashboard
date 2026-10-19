@@ -2,11 +2,13 @@
 import { useMemo, useState } from "react";
 import { useNotes } from "./context/NotesContext";
 import { NoteEditor } from "./components/NoteEditor";
+import { useTheme } from "./hooks/useTheme";
 import type { Note } from "./types";
 /** Render the collection and route user actions to the shared API-backed provider. */
 export default function App() {
 	// Collection state belongs to the provider; transient UI choices belong here.
 	const { notes, loading, busy, error, reload, save, remove } = useNotes();
+	const { theme, toggleTheme } = useTheme();
 	const [query, setQuery] = useState("");
 	// null closes the editor; new opens a blank form; a Note opens an existing record.
 	const [editor, setEditor] = useState<Note | "new" | null>(null);
@@ -31,7 +33,20 @@ export default function App() {
 					<span className="brand-icon">f.</span>fieldnotes
 					<span className="brand-dot">®</span>
 				</a>
-				<span className="header-caption">A little space for your ideas.</span>
+				<div className="header-actions">
+					<span className="header-caption">A little space for your ideas.</span>
+					{/* The pressed state announces whether dark mode is active. */}
+					<button
+						type="button"
+						className="secondary theme-toggle"
+						aria-label="Dark theme"
+						aria-pressed={theme === "dark"}
+						onClick={toggleTheme}
+					>
+						<span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span>
+						{theme === "dark" ? "Light mode" : "Dark mode"}
+					</button>
+				</div>
 			</header>
 			<main>
 				{/* Decorative introduction; the stamp is hidden from assistive technology. */}

@@ -24,6 +24,7 @@ The committed lockfile pins the resolved dependencies. The generated MSW worker 
 ## What is included
 
 - Notes have a unique string ID, title, and content.
+- Dark theme by default, with an accessible light/dark toggle and a saved browser preference.
 - Responsive cards, add/edit dialog, and explicit delete confirmation.
 - GET, POST, PUT, and DELETE requests through `fetch` and Mock Service Worker.
 - Shared state through React Context and hooks; no class components.
@@ -73,7 +74,7 @@ POST/PUT accept `{ "title": "...", "content": "..." }`. The API owns IDs. Titles
 
 ## Testing
 
-Five automated tests exercise the real API client against MSW:
+The original five integration tests exercise the real API client against MSW:
 
 1. Load, create, edit, search, and delete, including persistence assertions.
 2. Failed create preserves the draft and succeeds on retry.
@@ -81,7 +82,7 @@ Five automated tests exercise the real API client against MSW:
 4. Failed deletion leaves the original note visible.
 5. Whitespace-only drafts are rejected.
 
-`npm test` and `npm run build` passed during preparation. The dialog methods are shimmed for jsdom; the browser itself supplies native dialog behavior. A full browser visual/accessibility review remains a manual check.
+`npm test` and `npm run build` passed during preparation. The dialog methods are shimmed for jsdom; the browser itself supplies native dialog behavior. A full browser visual/accessibility review remains a manual check. Four additional theme tests cover the visible toggle, persistence across remounts, invalid saved preferences, and unavailable storage.
 
 Quick manual check: create a note, refresh, edit it, search for a word in its content, then delete it. Resize to a phone width and navigate the editor with the keyboard.
 

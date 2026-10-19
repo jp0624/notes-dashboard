@@ -124,3 +124,17 @@ describe("Notes dashboard through the API", () => {
 		).toHaveTextContent("Please add both");
 	});
 });
+
+// Exercise the visible control as well as the preference hook's persistence tests.
+it("exposes an accessible theme toggle", async () => {
+	const user = userEvent.setup();
+	mount();
+	const toggle = screen.getByRole("button", { name: "Dark theme" });
+	expect(toggle).toHaveAttribute("aria-pressed", "true");
+	await user.click(toggle);
+	expect(toggle).toHaveAttribute("aria-pressed", "false");
+	expect(toggle).toHaveTextContent("Dark mode");
+	expect(document.documentElement).toHaveAttribute("data-theme", "light");
+	await user.click(toggle);
+	expect(toggle).toHaveAttribute("aria-pressed", "true");
+});

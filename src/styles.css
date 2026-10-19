@@ -1,8 +1,75 @@
+/* Dark is the initial palette, even before JavaScript runs. Shared tokens also theme native dialogs. */
+:root {
+	color-scheme: dark;
+	--page: #161d19;
+	--surface: #202a24;
+	--text: #e8efe7;
+	--muted: #b9c8bb;
+	--primary: #b9d7a9;
+	--on-primary: #19251b;
+	--input: #18211b;
+	--border: #4e6153;
+	--focus: #e6b47e;
+	--accent: #e6b47e;
+	--badge: #334637;
+	--card-border: #ffffff26;
+	--card-green: #2b392b;
+	--card-peach: #403329;
+	--card-blue: #293b38;
+	--card-purple: #37313f;
+	--danger: #ffb9ac;
+	--error-bg: #492c27;
+}
+/* The light palette retains the original paper-inspired design. */
+:root[data-theme="light"] {
+	color-scheme: light;
+	--page: #f5f3ed;
+	--surface: #faf9f4;
+	--text: #25372e;
+	--muted: #59644f;
+	--primary: #253e30;
+	--on-primary: #ffffff;
+	--input: #fffefa;
+	--border: #bec5b8;
+	--focus: #a75d28;
+	--accent: #b66b36;
+	--badge: #e4e7db;
+	--card-border: #00000013;
+	--card-green: #e7ebd8;
+	--card-peach: #f1e2cf;
+	--card-blue: #dfe8e4;
+	--card-purple: #e8e2ee;
+	--danger: #792d20;
+	--error-bg: #f7ded7;
+}
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	white-space: nowrap;
+	min-height: 44px;
+}
+input::placeholder,
+textarea::placeholder {
+	color: var(--muted);
+	opacity: 1;
+}
+@media (max-width: 540px) {
+	.theme-toggle {
+		padding: 9px 12px;
+		font-size: 12px;
+	}
+}
 /* Visual foundation: system fonts, paper background, consistent sizing, and form controls. */
 :root {
 	font-family: Arial, Helvetica, sans-serif;
-	color: #25372e;
-	background: #f5f3ed;
+	color: var(--text);
+	background: var(--page);
 	font-synthesis: none;
 	line-height: 1.5;
 }
@@ -19,9 +86,9 @@ textarea {
 }
 button {
 	cursor: pointer;
-	border: 1px solid #253e30;
-	background: #253e30;
-	color: white;
+	border: 1px solid var(--primary);
+	background: var(--primary);
+	color: var(--on-primary);
 	border-radius: 8px;
 	padding: 11px 20px;
 	font-weight: 600;
@@ -35,21 +102,21 @@ button:disabled {
 }
 button:focus-visible,
 a:focus-visible {
-	outline: 3px solid #a75d28;
+	outline: 3px solid var(--focus);
 	outline-offset: 4px;
 }
 input,
 textarea {
-	border: 1px solid #c7c9be;
+	border: 1px solid var(--border);
 	border-radius: 8px;
 	padding: 12px;
-	background: #fffefa;
-	color: #25372e;
+	background: var(--input);
+	color: var(--text);
 	min-width: 0;
 }
 input:focus,
 textarea:focus {
-	outline: 2px solid #60806c;
+	outline: 2px solid var(--focus);
 	outline-offset: 2px;
 }
 /* Brand/navigation layout. */
@@ -58,7 +125,7 @@ header {
 	align-items: center;
 	justify-content: space-between;
 	padding: 26px 6%;
-	border-bottom: 1px solid #dadcd0;
+	border-bottom: 1px solid var(--border);
 }
 .brand {
 	font-size: 25px;
@@ -71,8 +138,8 @@ header {
 	letter-spacing: -1px;
 }
 .brand-icon {
-	background: #253e30;
-	color: #f5f3ed;
+	background: var(--primary);
+	color: var(--on-primary);
 	padding: 0 8px;
 	border-radius: 5px;
 	font-family: Georgia, serif;
@@ -83,7 +150,7 @@ header {
 }
 .header-caption {
 	font-size: 12px;
-	color: #667065;
+	color: var(--muted);
 }
 /* Constrain content width and leave responsive side gutters. */
 main {
@@ -112,16 +179,16 @@ h1 {
 	margin: 20px 0;
 }
 h1 span {
-	color: #b66b36;
+	color: var(--accent);
 }
 .subtitle {
 	font-size: 14px;
-	color: #657064;
+	color: var(--muted);
 }
 .stamp {
 	width: 175px;
 	height: 175px;
-	border: 1px solid #c6cbbb;
+	border: 1px solid var(--border);
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
@@ -130,7 +197,7 @@ h1 span {
 	font-size: 85px;
 	line-height: 1;
 	transform: rotate(10deg);
-	color: #57735a;
+	color: var(--muted);
 }
 .stamp span {
 	font-size: 8px;
@@ -143,7 +210,7 @@ h1 span {
 	justify-content: space-between;
 	align-items: center;
 	gap: 20px;
-	border-top: 1px solid #d7dacd;
+	border-top: 1px solid var(--border);
 	padding: 25px 0;
 }
 h2 {
@@ -153,7 +220,7 @@ h2 {
 }
 .count {
 	font: 12px Arial;
-	background: #e4e7db;
+	background: var(--badge);
 	padding: 4px 8px;
 	border-radius: 20px;
 	margin-left: 8px;
@@ -179,24 +246,24 @@ h2 {
 	min-height: 270px;
 	display: flex;
 	flex-direction: column;
-	border: 1px solid #0000000b;
+	border: 1px solid var(--card-border);
 }
 .color-0 {
-	background: #e7ebd8;
+	background: var(--card-green);
 }
 .color-1 {
-	background: #f1e2cf;
+	background: var(--card-peach);
 }
 .color-2 {
-	background: #dfe8e4;
+	background: var(--card-blue);
 }
 .color-3 {
-	background: #e8e2ee;
+	background: var(--card-purple);
 }
 .note-label {
 	font-size: 9px;
 	letter-spacing: 2px;
-	color: #59644f;
+	color: var(--muted);
 }
 .note h3 {
 	font-family: Georgia, serif;
@@ -211,7 +278,7 @@ h2 {
 	overflow-wrap: anywhere;
 	font-size: 14px;
 	margin: 0 0 28px;
-	color: #4f5a4c;
+	color: var(--muted);
 }
 .note-actions {
 	margin-top: auto;
@@ -219,7 +286,7 @@ h2 {
 	justify-content: space-between;
 	gap: 10px;
 	align-items: center;
-	border-top: 1px solid #00000013;
+	border-top: 1px solid var(--card-border);
 	padding-top: 13px;
 	font-size: 12px;
 	flex-wrap: wrap;
@@ -228,32 +295,32 @@ h2 {
 .text-button {
 	background: none;
 	border: 0;
-	color: #334c38;
+	color: var(--text);
 	padding: 4px 0;
 	font-size: 12px;
 }
 .danger {
-	color: #8c3021;
+	color: var(--danger);
 }
 .secondary {
 	background: transparent;
-	color: #253e30;
-	border-color: #bec5b8;
+	color: var(--primary);
+	border-color: var(--border);
 }
 /* Empty/loading and recoverable error feedback. */
 .empty {
 	text-align: center;
-	border: 1px dashed #bdc5b5;
+	border: 1px dashed var(--border);
 	border-radius: 10px;
 	padding: 45px 20px;
-	color: #5c695b;
+	color: var(--muted);
 }
 .error {
-	background: #f7ded7;
+	background: var(--error-bg);
 	padding: 12px 18px;
 	border-radius: 8px;
 	margin-bottom: 16px;
-	color: #792d20;
+	color: var(--danger);
 	position: relative;
 	z-index: 2;
 }
@@ -266,11 +333,11 @@ dialog::backdrop {
 }
 dialog {
 	width: min(540px, calc(100% - 30px));
-	border: 1px solid #d6d9cd;
+	border: 1px solid var(--border);
 	border-radius: 14px;
-	background: #faf9f4;
+	background: var(--surface);
 	padding: 28px;
-	color: #25372e;
+	color: var(--text);
 	max-height: 85vh;
 }
 dialog label {
@@ -300,12 +367,12 @@ dialog textarea {
 }
 .muted {
 	font-size: 13px;
-	color: #667065;
+	color: var(--muted);
 }
 .counter {
 	font-size: 11px;
 	text-align: right;
-	color: #667065;
+	color: var(--muted);
 }
 .editor-actions {
 	display: flex;
@@ -319,9 +386,9 @@ footer {
 	justify-content: space-between;
 	padding: 28px 0;
 	margin-top: 35px;
-	border-top: 1px solid #d7dacd;
+	border-top: 1px solid var(--border);
 	font-size: 11px;
-	color: #6d776a;
+	color: var(--muted);
 }
 .sr-only {
 	position: absolute;
