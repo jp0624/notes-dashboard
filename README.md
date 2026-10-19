@@ -99,3 +99,9 @@ I would keep the note types and API client, replace the card grid with a `FlatLi
 ## Reading the source
 
 The source includes function documentation and inline comments explaining request handling, shared state, mock persistence, form events, rendering branches, responsive styling, and test setup. `package.json` defines the run/build/test commands; `tsconfig.json` enables strict types and the browser/JSX compilation settings. These JSON files remain valid JSON, which does not support comments. `package-lock.json` and `public/mockServiceWorker.js` are generated dependency files and should not be hand-edited.
+
+## Hero background
+
+The full-width intro uses `public/images/technical-hero.webp`, an original image created with the built-in image generation tool and compressed to WebP. It is bundled locally, so the app does not depend on an external image host. A dark gradient keeps the live headline readable in both themes; the background is decorative and contains no text.
+
+Generation prompt: "Use case: stylized-concept. Asset type: full-width website hero background for a polished technical notes dashboard. Create a classy restrained cinematic abstract 3D architectural composition of graphite glass planes and precise microetched circuit traces, subtle fiber-optic cyan light (#14AFF1), a few tiny warm gold highlights (#FFBE11), deep charcoal black. Landscape panoramic 3:1 composition. Keep the LEFT HALF very dark, quiet and nearly empty for overlaid white headline. Concentrate elegant geometric technical detail and depth on the right half. Sophisticated studio lighting, fine material detail, premium enterprise technology aesthetic, minimal tasteful, no text no logos no watermark no characters, avoid busy neon cyberpunk. Save the generated asset locally for inclusion in the website repository."

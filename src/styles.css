@@ -155,18 +155,48 @@ header {
 	font-size: 12px;
 	color: var(--muted);
 }
-/* Constrain content width and leave responsive side gutters. */
+/* Full-width hero with aligned content gutters; notes retain a readable maximum width. */
 main {
+	width: 100%;
+}
+.workspace {
 	max-width: 1280px;
 	margin: auto;
-	padding: 0 6%;
+	padding: 28px 6% 0;
 }
-/* Hero typography and decorative stamp. */
+/* A dark overlay protects the headline in both themes; the image is decorative. */
 .intro {
+	background-color: #0b0d10;
+	background-image:
+		linear-gradient(
+			90deg,
+			rgba(6, 12, 18, 0.94) 0%,
+			rgba(6, 12, 18, 0.76) 42%,
+			rgba(6, 12, 18, 0.12) 100%
+		),
+		url("/images/technical-hero.webp");
+	background-size: cover;
+	background-position: center;
+	color: #f7f7fa;
+	border-bottom: 1px solid var(--border);
+}
+.intro-inner {
+	max-width: 1280px;
+	margin: auto;
+	padding: 84px 6%;
+	min-height: 420px;
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
-	padding: 64px 0 52px;
+}
+.intro .eyebrow {
+	color: #14aff1;
+}
+.intro h1 span {
+	color: #14aff1;
+}
+.intro .subtitle {
+	color: #d2dce5;
+	max-width: 420px;
 }
 .eyebrow {
 	font-size: 10px;
@@ -187,25 +217,6 @@ h1 span {
 .subtitle {
 	font-size: 14px;
 	color: var(--muted);
-}
-.stamp {
-	width: 175px;
-	height: 175px;
-	border: 1px solid var(--border);
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	font-size: 85px;
-	line-height: 1;
-	transform: rotate(10deg);
-	color: var(--muted);
-}
-.stamp span {
-	font-size: 8px;
-	letter-spacing: 2px;
-	margin-top: 12px;
 }
 /* Collection heading, search, and primary action. */
 .toolbar {
@@ -431,9 +442,6 @@ footer {
 	.grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-	.stamp {
-		display: none;
-	}
 	.toolbar {
 		align-items: start;
 		flex-direction: column;
@@ -453,8 +461,12 @@ footer {
 	.header-caption {
 		display: none;
 	}
+	.intro-inner {
+		padding: 48px 6%;
+		min-height: 350px;
+	}
 	.intro {
-		padding: 35px 0;
+		background-position: 60% center;
 	}
 	.grid {
 		grid-template-columns: 1fr;
