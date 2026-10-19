@@ -62,12 +62,12 @@ src/
 
 ## API contract
 
-| Method | Route | Success |
-| --- | --- | --- |
-| GET | `/api/notes` | 200, `Note[]` |
-| POST | `/api/notes` | 201, created `Note` |
-| PUT | `/api/notes/:id` | 200, updated `Note` |
-| DELETE | `/api/notes/:id` | 204, no body |
+| Method | Route            | Success             |
+| ------ | ---------------- | ------------------- |
+| GET    | `/api/notes`     | 200, `Note[]`       |
+| POST   | `/api/notes`     | 201, created `Note` |
+| PUT    | `/api/notes/:id` | 200, updated `Note` |
+| DELETE | `/api/notes/:id` | 204, no body        |
 
 POST/PUT accept `{ "title": "...", "content": "..." }`. The API owns IDs. Titles must contain 1-100 trimmed characters; content must contain 1-5000. Errors return `{ "message": "..." }`: invalid input is 400, missing notes are 404, and storage failures are 500.
 
@@ -94,3 +94,7 @@ The mock worker intentionally starts in both development and preview builds so a
 ## Adapting to React Native
 
 I would keep the note types and API client, replace the card grid with a `FlatList`, use `TextInput` for the editor, and present it through a native modal or navigation screen. Context can stay initially. The browser service worker would be replaced with a real API or a native-compatible mock, and AsyncStorage could support an offline cache. I would also account for the keyboard, safe areas, touch targets, screen-reader labels, and offline retry before adding more features.
+
+## Reading the source
+
+The source includes function documentation and inline comments explaining request handling, shared state, mock persistence, form events, rendering branches, responsive styling, and test setup. `package.json` defines the run/build/test commands; `tsconfig.json` enables strict types and the browser/JSX compilation settings. These JSON files remain valid JSON, which does not support comments. `package-lock.json` and `public/mockServiceWorker.js` are generated dependency files and should not be hand-edited.
