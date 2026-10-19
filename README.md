@@ -2,6 +2,12 @@
 
 A React and TypeScript notes dashboard built for the KD AI Engineering Lead Assessment. It supports API-backed CRUD, optimistic updates with rollback, search, categories, cover images, and light/dark themes.
 
+## Live demo
+
+[Open the Notes Dashboard](https://notes-dashboard-int.vercel.app/)
+
+Notes and theme preferences are saved in your browser on this origin. Use the live demo for an interview walkthrough, or follow the local setup below.
+
 ## Run locally
 
 Use Node.js 22.12 or newer. From the repository root:
