@@ -41,7 +41,7 @@ export function validImage(image: unknown): boolean {
 	return (
 		image == null ||
 		(typeof image === "string" &&
-			(["/images/note-workspace.webp", "/images/technical-hero.webp"].includes(
+			(["/images/note-workspace.webp", "/images/technical-hero.webp", "/images/note-small-steps.webp"].includes(
 				image,
 			) ||
 				(image.length <= 400000 &&

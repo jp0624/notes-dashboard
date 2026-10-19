@@ -45,6 +45,7 @@ describe("note images", () => {
 		).rejects.toThrow("smaller than 10 MB");
 	});
 	it("resizes, encodes and releases the temporary URL", async () => {
+		const originalImage = globalThis.Image;
 		vi.stubGlobal(
 			"Image",
 			class {
@@ -79,7 +80,16 @@ describe("note images", () => {
 		} finally {
 			URL.createObjectURL = oldCreate;
 			URL.revokeObjectURL = oldRevoke;
-			vi.unstubAllGlobals();
+			vi.stubGlobal("Image", originalImage);
 		}
 	});
+});
+
+// Existing demo data receives the new bundled cover without losing user choices.
+it("upgrades the old small-steps cover and preserves removed or uploaded images", async () => {
+	for (const image of ["/images/technical-hero.webp", null, "data:image/webp;base64,AAAA"]) {
+		localStorage.setItem("fieldnotes.notes.v1", JSON.stringify([{ id: "next", title: "Small steps, good work", content: "Steady progress", image }]));
+		const notes = await notesApi.list();
+		expect(notes[0].image).toBe(image === "/images/technical-hero.webp" ? "/images/note-small-steps.webp" : image);
+	}
 });

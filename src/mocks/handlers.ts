@@ -20,7 +20,7 @@ const initial: Note[] = [
 	},
 	{
 		id: "next",
-		image: "/images/technical-hero.webp",
+		image: "/images/note-small-steps.webp",
 		title: "Small steps, good work",
 		content:
 			"Start with the useful thing. Keep it simple. Leave it a little better than you found it.",
@@ -45,7 +45,10 @@ function read(): Note[] {
 		throw new Error("Invalid stored notes");
 	// Older starter notes gain a cover once; explicit null keeps a removed image removed.
 	return data.map((n) =>
-		n.image === undefined
+		// Upgrade only the former bundled cover; preserve uploads and explicit removal.
+		(n.id === "next" && n.image === "/images/technical-hero.webp")
+			? { ...n, image: "/images/note-small-steps.webp" }
+			: n.image === undefined
 			? { ...n, image: initial.find((sample) => sample.id === n.id)?.image }
 			: n,
 	);
