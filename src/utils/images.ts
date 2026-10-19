@@ -41,9 +41,16 @@ export function validImage(image: unknown): boolean {
 	return (
 		image == null ||
 		(typeof image === "string" &&
-			(["/images/note-workspace.webp", "/images/technical-hero.webp", "/images/note-small-steps.webp"].includes(
-				image,
-			) ||
+			([
+				"/images/note-workspace.webp",
+				"/images/technical-hero.webp",
+				"/images/note-small-steps.webp",
+				"/images/note-focus.webp",
+				"/images/note-learn.webp",
+				"/images/note-ideas.webp",
+				"/images/note-clarity.webp",
+				"/images/note-ship.webp",
+			].includes(image) ||
 				(image.length <= 400000 &&
 					/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/]+={0,2}$/.test(
 						image,

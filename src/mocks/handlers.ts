@@ -9,7 +9,46 @@ import {
 } from "../types";
 // Version the storage key so a future schema can migrate independently.
 const KEY = "fieldnotes.notes.v1";
-// Seed examples are returned only when no persisted collection exists.
+// Record this seed expansion so deleted examples do not reappear after a reload.
+const SEED_VERSION_KEY = "fieldnotes.seed-expansion.v2";
+const additionalNotes: Note[] = [
+	{
+		id: "focus",
+		title: "Make space for focus",
+		content:
+			"Pick one thing that matters today. Close the extra tabs, silence the noise, and give it your full attention for twenty minutes.",
+		image: "/images/note-focus.webp",
+	},
+	{
+		id: "learn",
+		title: "Build, measure, learn",
+		content:
+			"Try the smallest useful version first. See what people actually do with it, write down what surprised you, and let that shape the next iteration.",
+		image: "/images/note-learn.webp",
+	},
+	{
+		id: "ideas",
+		title: "Ideas worth keeping",
+		content:
+			"Not every idea needs a plan right away. Save the interesting question, the unexpected connection, or the sentence you do not want to forget.",
+		image: "/images/note-ideas.webp",
+	},
+	{
+		id: "clarity",
+		title: "Design for clarity",
+		content:
+			"A good interface makes the next step feel obvious. Use clear labels, give useful feedback, and remove anything that makes a simple task feel complicated.",
+		image: "/images/note-clarity.webp",
+	},
+	{
+		id: "ship",
+		title: "Ship something useful",
+		content:
+			"Finish one small improvement and put it in someone's hands. Real feedback on working software is worth more than another week of polishing an assumption.",
+		image: "/images/note-ship.webp",
+	},
+];
+// New installations receive all seven examples.
 const initial: Note[] = [
 	{
 		id: "welcome",
@@ -25,11 +64,16 @@ const initial: Note[] = [
 		content:
 			"Start with the useful thing. Keep it simple. Leave it a little better than you found it.",
 	},
+	...additionalNotes,
 ];
 /** Load stored notes and reject malformed JSON/schema instead of silently erasing it. */
 function read(): Note[] {
 	const raw = localStorage.getItem(KEY);
-	if (raw === null) return structuredClone(initial);
+	if (raw === null) {
+		const notes = structuredClone(initial);
+		write(notes);
+		return notes;
+	}
 	const data: unknown = JSON.parse(raw);
 	if (
 		!Array.isArray(data) ||
@@ -44,18 +88,28 @@ function read(): Note[] {
 	)
 		throw new Error("Invalid stored notes");
 	// Older starter notes gain a cover once; explicit null keeps a removed image removed.
-	return data.map((n) =>
+	const notes = data.map((n) =>
 		// Upgrade only the former bundled cover; preserve uploads and explicit removal.
-		(n.id === "next" && n.image === "/images/technical-hero.webp")
+		n.id === "next" && n.image === "/images/technical-hero.webp"
 			? { ...n, image: "/images/note-small-steps.webp" }
 			: n.image === undefined
-			? { ...n, image: initial.find((sample) => sample.id === n.id)?.image }
-			: n,
+				? { ...n, image: initial.find((sample) => sample.id === n.id)?.image }
+				: n,
 	);
+	// Backfill the five new examples once, using IDs to preserve edits and avoid duplicates.
+	if (localStorage.getItem(SEED_VERSION_KEY) !== "done") {
+		const missing = additionalNotes.filter(
+			(sample) => !notes.some((n) => n.id === sample.id),
+		);
+		notes.push(...structuredClone(missing));
+		write(notes);
+	}
+	return notes;
 }
 /** Persist the entire collection; storage quota/security errors reach guarded(). */
 function write(notes: Note[]) {
 	localStorage.setItem(KEY, JSON.stringify(notes));
+	localStorage.setItem(SEED_VERSION_KEY, "done");
 }
 /** Narrow unknown request JSON after checking types, trimmed values, and limits. */
 function valid(input: unknown): input is NoteInput {
