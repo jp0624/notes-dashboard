@@ -123,6 +123,17 @@ export default function App() {
 							<div className="grid">
 								{filtered.map((note, i) => (
 									<article className={`note color-${i % 4}`} key={note.id}>
+										{/* Cover is decorative; the adjacent heading names the note. */}
+										{note.image && (
+											<img
+												className="note-image"
+												src={note.image}
+												alt=""
+												loading="lazy"
+												width="600"
+												height="360"
+											/>
+										)}
 										<span className="note-label">FIELDNOTE</span>
 										<h3>{note.title}</h3>
 										<p className="note-content">{note.content}</p>

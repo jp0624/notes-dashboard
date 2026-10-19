@@ -4,6 +4,8 @@ export interface Note {
 	id: string;
 	title: string;
 	content: string;
+	/** Optional cover: bundled path or compressed raster data URL; null explicitly removes it. */
+	image?: string | null;
 }
 /** A create/update payload omits the server-owned ID. */
 export type NoteInput = Omit<Note, "id">;

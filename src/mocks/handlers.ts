@@ -1,4 +1,5 @@
 /** Mock HTTP API. Only this persistence adapter touches localStorage. */
+import { validImage } from "../utils/images";
 import { http, HttpResponse, delay } from "msw";
 import {
 	TITLE_LIMIT,
@@ -12,12 +13,14 @@ const KEY = "fieldnotes.notes.v1";
 const initial: Note[] = [
 	{
 		id: "welcome",
+		image: "/images/note-workspace.webp",
 		title: "A little room to think",
 		content:
 			"Capture the idea before it slips away. Add a note, give it a title, and make it yours.",
 	},
 	{
 		id: "next",
+		image: "/images/technical-hero.webp",
 		title: "Small steps, good work",
 		content:
 			"Start with the useful thing. Keep it simple. Leave it a little better than you found it.",
@@ -35,11 +38,17 @@ function read(): Note[] {
 				n &&
 				typeof n.id === "string" &&
 				typeof n.title === "string" &&
-				typeof n.content === "string",
+				typeof n.content === "string" &&
+				validImage(n.image),
 		)
 	)
 		throw new Error("Invalid stored notes");
-	return data;
+	// Older starter notes gain a cover once; explicit null keeps a removed image removed.
+	return data.map((n) =>
+		n.image === undefined
+			? { ...n, image: initial.find((sample) => sample.id === n.id)?.image }
+			: n,
+	);
 }
 /** Persist the entire collection; storage quota/security errors reach guarded(). */
 function write(notes: Note[]) {
@@ -55,7 +64,8 @@ function valid(input: unknown): input is NoteInput {
 		n.title.trim().length > 0 &&
 		n.title.trim().length <= TITLE_LIMIT &&
 		n.content.trim().length > 0 &&
-		n.content.trim().length <= CONTENT_LIMIT
+		n.content.trim().length <= CONTENT_LIMIT &&
+		validImage(n.image)
 	);
 }
 /** Convert synchronous storage failures into an HTTP 500 with a readable message. */
@@ -87,7 +97,7 @@ export const handlers = [
 			return HttpResponse.json(
 				{
 					message:
-						"Enter a title (1-100 characters) and content (1-5000 characters).",
+						"Enter a title (1-100 characters) and content (1-5000 characters), plus a supported image.",
 				},
 				{ status: 400 },
 			);
@@ -96,6 +106,7 @@ export const handlers = [
 				id: crypto.randomUUID(),
 				title: input.title.trim(),
 				content: input.content.trim(),
+				image: input.image ?? null,
 			};
 			write([note, ...read()]);
 			return HttpResponse.json(note, { status: 201 });
@@ -107,7 +118,9 @@ export const handlers = [
 		const input: unknown = await request.json().catch(() => null);
 		if (!valid(input))
 			return HttpResponse.json(
-				{ message: "A valid title and content are required." },
+				{
+					message: "A valid title, content, and supported image are required.",
+				},
 				{ status: 400 },
 			);
 		return guarded(() => {
@@ -122,6 +135,7 @@ export const handlers = [
 				id: notes[index].id,
 				title: input.title.trim(),
 				content: input.content.trim(),
+				image: input.image ?? null,
 			};
 			notes[index] = note;
 			write(notes);

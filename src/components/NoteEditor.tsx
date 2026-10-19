@@ -1,4 +1,5 @@
 /** Controlled add/edit form; draft values remain local until the API confirms a save. */
+import { prepareImage } from "../utils/images";
 import { useEffect, useRef, useState } from "react";
 import {
 	CONTENT_LIMIT,
@@ -21,6 +22,9 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 	// This component remounts for each editor session, initializing from the chosen note.
 	const [title, setTitle] = useState(note?.title ?? "");
 	const [content, setContent] = useState(note?.content ?? "");
+	const [image, setImage] = useState<string | null>(note?.image ?? null);
+	const [processing, setProcessing] = useState(false);
+	const [imageError, setImageError] = useState("");
 	const [validation, setValidation] = useState("");
 	// Native modal mode traps focus and makes the background inert. Close during cleanup.
 	useEffect(() => {
@@ -35,13 +39,14 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 			aria-labelledby="editor-title"
 			onCancel={(e) => {
 				e.preventDefault();
-				if (!busy) onClose();
+				if (!busy && !processing) onClose();
 			}}
 		>
 			<form
 				onSubmit={async (e) => {
 					// Handle submission in React rather than navigating/reloading the page.
 					e.preventDefault();
+					if (processing) return;
 					// HTML required catches empty fields; trim additionally rejects whitespace-only text.
 					if (!title.trim() || !content.trim()) {
 						setValidation("Please add both a title and some content.");
@@ -50,7 +55,7 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					// Preserve the mounted form and its draft when the API reports a failure.
 					if (
 						await onSave(
-							{ title: title.trim(), content: content.trim() },
+							{ title: title.trim(), content: content.trim(), image },
 							note?.id,
 						)
 					)
@@ -64,7 +69,7 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 						className="icon"
 						aria-label="Close editor"
 						onClick={onClose}
-						disabled={busy}
+						disabled={busy || processing}
 					>
 						×
 					</button>
@@ -79,7 +84,7 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					maxLength={TITLE_LIMIT}
 					value={title}
 					onChange={(e) => setTitle(e.target.value)}
-					disabled={busy}
+					disabled={busy || processing}
 					placeholder="Give it a name"
 				/>
 				<label htmlFor="content">Content</label>
@@ -90,13 +95,62 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					rows={8}
 					value={content}
 					onChange={(e) => setContent(e.target.value)}
-					disabled={busy}
+					disabled={busy || processing}
 					placeholder="Start writing…"
 				/>
 				{/* Character count and separate API/validation errors provide immediate feedback. */}
 				<p className="counter">
 					{content.length.toLocaleString()} / {CONTENT_LIMIT.toLocaleString()}
 				</p>
+				{/* File selection changes only the draft; the API persists it when Save is pressed. */}
+				<label htmlFor="note-image">Image (optional)</label>
+				<input
+					id="note-image"
+					type="file"
+					accept="image/jpeg,image/png,image/webp"
+					aria-describedby="image-help"
+					disabled={busy || processing}
+					onChange={async (event) => {
+						const file = event.currentTarget.files?.[0];
+						event.currentTarget.value = "";
+						if (!file) return;
+						setProcessing(true);
+						setImageError("");
+						try {
+							setImage(await prepareImage(file));
+						} catch (error) {
+							setImageError(
+								error instanceof Error
+									? error.message
+									: "Could not load image.",
+							);
+						} finally {
+							setProcessing(false);
+						}
+					}}
+				/>
+				<p id="image-help" className="muted">
+					JPEG, PNG, or WebP, up to 10 MB. Images are resized for browser
+					storage.
+				</p>
+				{processing && <p role="status">Preparing image…</p>}
+				{imageError && <p role="alert">{imageError}</p>}
+				{image && (
+					<div className="image-preview">
+						<img src={image} alt="Selected note image preview" />
+						<button
+							type="button"
+							className="secondary"
+							disabled={busy || processing}
+							onClick={() => {
+								setImage(null);
+								setImageError("");
+							}}
+						>
+							Remove image
+						</button>
+					</div>
+				)}
 				{error && (
 					<p role="alert" className="error">
 						{error}
@@ -109,11 +163,13 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 						type="button"
 						className="secondary"
 						onClick={onClose}
-						disabled={busy}
+						disabled={busy || processing}
 					>
 						Cancel
 					</button>
-					<button disabled={busy}>{busy ? "Saving…" : "Save note"}</button>
+					<button disabled={busy || processing}>
+						{busy ? "Saving…" : "Save note"}
+					</button>
 				</div>
 			</form>
 		</dialog>

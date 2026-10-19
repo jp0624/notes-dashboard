@@ -485,3 +485,41 @@ footer {
 		min-height: 245px;
 	}
 }
+
+/* Covers keep a consistent crop; the editor shows the full selected image. */
+.note-image {
+	width: calc(100% + 50px);
+	max-width: none;
+	margin: -25px -25px 22px;
+	height: 180px;
+	object-fit: cover;
+	border-radius: 7px 7px 0 0;
+}
+.image-preview {
+	display: grid;
+	gap: 10px;
+	margin: 15px 0;
+}
+.image-preview img {
+	width: 100%;
+	max-height: 220px;
+	object-fit: contain;
+	border-radius: 8px;
+	background: var(--input);
+}
+.image-preview button {
+	justify-self: start;
+}
+input[type="file"] {
+	width: 100%;
+	font-size: 13px;
+}
+input[type="file"]::file-selector-button {
+	border: 0;
+	border-radius: 4px;
+	padding: 8px 10px;
+	margin-right: 10px;
+	background: var(--primary);
+	color: var(--on-primary);
+	cursor: pointer;
+}
