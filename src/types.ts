@@ -1,9 +1,12 @@
+import type { CategoryId } from "./categories";
 /** Shared domain types and input limits used by the UI and mock API. */
 /** A saved note: the API generates the unique ID. */
 export interface Note {
 	id: string;
 	title: string;
 	content: string;
+	/** Persisted semantic label used for the card accent and category badge. */
+	category?: CategoryId;
 	/** Optional cover: bundled path or compressed raster data URL; null explicitly removes it. */
 	image?: string | null;
 }

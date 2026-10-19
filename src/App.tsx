@@ -1,3 +1,5 @@
+import { getCategory } from "./categories";
+import type { CSSProperties } from "react";
 /** Dashboard composition: shared notes plus local search, editor, and delete-confirmation state. */
 import { useMemo, useState } from "react";
 import { useNotes } from "./context/NotesContext";
@@ -22,7 +24,9 @@ export default function App() {
 		const search = query.trim().toLocaleLowerCase();
 		// Keep the original collection unchanged; derive only the cards currently in view.
 		return notes.filter((n) =>
-			`${n.title}\n${n.content}`.toLocaleLowerCase().includes(search),
+			`${n.title}\n${n.content}\n${getCategory(n.category).label}`
+				.toLocaleLowerCase()
+				.includes(search),
 		);
 	}, [notes, query]);
 	return (
@@ -121,8 +125,16 @@ export default function App() {
 							</p>
 						) : filtered.length ? (
 							<div className="grid">
-								{filtered.map((note, i) => (
-									<article className={`note color-${i % 4}`} key={note.id}>
+								{filtered.map((note) => (
+									<article
+										className="note"
+										key={note.id}
+										style={
+											{
+												"--card-accent": getCategory(note.category).color,
+											} as CSSProperties
+										}
+									>
 										{/* Cover is decorative; the adjacent heading names the note. */}
 										{note.image && (
 											<img
@@ -134,7 +146,9 @@ export default function App() {
 												height="360"
 											/>
 										)}
-										<span className="note-label">FIELDNOTE</span>
+										<span className="note-label">
+											{getCategory(note.category).label}
+										</span>
 										<h3>{note.title}</h3>
 										<p className="note-content">{note.content}</p>
 										<div className="note-actions">

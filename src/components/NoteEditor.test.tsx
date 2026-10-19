@@ -17,6 +17,7 @@ describe("editor image controls", () => {
 			<NoteEditor error={null} busy={false} onSave={save} onClose={close} />,
 		);
 		await user.type(screen.getByLabelText("Title"), "My image note");
+		await user.selectOptions(screen.getByLabelText("Category"), "design");
 		await user.type(screen.getByLabelText("Content"), "A visual thought");
 		await user.upload(
 			screen.getByLabelText("Image (optional)"),
@@ -28,7 +29,12 @@ describe("editor image controls", () => {
 		await user.click(screen.getByRole("button", { name: "Save note" }));
 		await waitFor(() =>
 			expect(save).toHaveBeenCalledWith(
-				{ title: "My image note", content: "A visual thought", image },
+				{
+					title: "My image note",
+					content: "A visual thought",
+					image,
+					category: "design",
+				},
 				undefined,
 			),
 		);
@@ -51,6 +57,7 @@ describe("editor image controls", () => {
 				onClose={vi.fn()}
 			/>,
 		);
+		await user.selectOptions(screen.getByLabelText("Category"), "learning");
 		await user.click(screen.getByRole("button", { name: "Remove image" }));
 		expect(
 			screen.queryByAltText("Selected note image preview"),
@@ -58,7 +65,12 @@ describe("editor image controls", () => {
 		await user.click(screen.getByRole("button", { name: "Save note" }));
 		await waitFor(() =>
 			expect(save).toHaveBeenCalledWith(
-				{ title: "Existing", content: "Thoughts", image: null },
+				{
+					title: "Existing",
+					content: "Thoughts",
+					image: null,
+					category: "learning",
+				},
 				"test",
 			),
 		);

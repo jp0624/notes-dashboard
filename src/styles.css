@@ -258,6 +258,7 @@ h2 {
    without turning the notes into unrelated blocks of color. */
 .note {
 	--card-accent: #14aff1;
+	background: var(--surface);
 	border-radius: 10px;
 	padding: 25px;
 	min-height: 270px;
@@ -271,20 +272,6 @@ h2 {
 .note:focus-within {
 	outline: 2px solid var(--focus);
 	outline-offset: 3px;
-}
-.color-0 {
-	background: var(--card-1);
-}
-.color-1 {
-	--card-accent: #ffbe11;
-	background: var(--card-2);
-}
-.color-2 {
-	--card-accent: #007aa8;
-	background: var(--card-3);
-}
-.color-3 {
-	background: var(--card-4);
 }
 /* Repeat the stripe as a small decorative marker beside the note label. */
 .note-label::before {
@@ -522,4 +509,24 @@ input[type="file"]::file-selector-button {
 	background: var(--primary);
 	color: var(--on-primary);
 	cursor: pointer;
+}
+
+/* Category is readable text as well as a colored border/dot; color is never the sole cue. */
+.note-label {
+	text-transform: uppercase;
+	display: inline-flex;
+	align-items: center;
+}
+select {
+	font: inherit;
+	width: 100%;
+	padding: 12px;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--input);
+	color: var(--text);
+}
+select:focus-visible {
+	outline: 2px solid var(--focus);
+	outline-offset: 2px;
 }

@@ -125,3 +125,9 @@ All five covers were created with the built-in image generation tool using this 
 - Ideas: Three delicate floating glass tiles with tiny luminous gold points and cyan edge light above a dark reflective surface, captured ideas.
 - Clarity: Precisely aligned translucent glass panels forming a simple geometric doorway, cyan edges, warm gold light beyond, clarity and intentional design.
 - Ship: A small flawless brushed graphite cube resting at the end of an architectural runway, cyan guiding lines and a restrained gold edge, completion and purposeful delivery.
+
+## Categories and card colors
+
+Ten categories own stable accent colors: Ideas (cyan), Focus (turquoise), Learning (blue), Experiments (violet), Design (lilac), Engineering (mint), Delivery (gold), Planning (orange), Product (pink), and Reflection (slate). The category name appears on each card and controls its top border and label dot. Searching and reordering never change the color. Category labels use neutral text for readability in both themes.
+
+Starter notes receive a random category from choices relevant to their existing text, plus a matching sentence of guidance. Assignments are saved once rather than randomized on each render. Legacy notes gain a category without changing user-edited copy. Add starts with a random category; Add/Edit both allow an explicit choice. Custom content is always controlled by the user. The API validates category IDs and persists category changes; search includes the category label.

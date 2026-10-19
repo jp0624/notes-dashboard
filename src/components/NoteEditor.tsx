@@ -1,3 +1,4 @@
+import { categories, chooseCategory, type CategoryId } from "../categories";
 /** Controlled add/edit form; draft values remain local until the API confirms a save. */
 import { prepareImage } from "../utils/images";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +21,10 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 	// The DOM ref gives the effect access to native showModal()/close() methods.
 	const ref = useRef<HTMLDialogElement>(null);
 	// This component remounts for each editor session, initializing from the chosen note.
+	const [category, setCategory] = useState<CategoryId>(
+		() =>
+			note?.category ?? chooseCategory(note?.title ?? "", note?.content ?? ""),
+	);
 	const [title, setTitle] = useState(note?.title ?? "");
 	const [content, setContent] = useState(note?.content ?? "");
 	const [image, setImage] = useState<string | null>(note?.image ?? null);
@@ -55,7 +60,7 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					// Preserve the mounted form and its draft when the API reports a failure.
 					if (
 						await onSave(
-							{ title: title.trim(), content: content.trim(), image },
+							{ title: title.trim(), content: content.trim(), image, category },
 							note?.id,
 						)
 					)
@@ -87,6 +92,20 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					disabled={busy || processing}
 					placeholder="Give it a name"
 				/>
+				{/* New notes start with a random category; users can select a better fit. */}
+				<label htmlFor="category">Category</label>
+				<select
+					id="category"
+					value={category}
+					disabled={busy || processing}
+					onChange={(event) => setCategory(event.target.value as CategoryId)}
+				>
+					{categories.map((item) => (
+						<option key={item.id} value={item.id}>
+							{item.label}
+						</option>
+					))}
+				</select>
 				<label htmlFor="content">Content</label>
 				<textarea
 					id="content"

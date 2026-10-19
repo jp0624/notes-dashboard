@@ -1,3 +1,4 @@
+import { chooseCategory, getCategory, isCategory } from "../categories";
 /** Mock HTTP API. Only this persistence adapter touches localStorage. */
 import { validImage } from "../utils/images";
 import { http, HttpResponse, delay } from "msw";
@@ -66,11 +67,28 @@ const initial: Note[] = [
 	},
 	...additionalNotes,
 ];
+/** Categorize legacy records once. Only untouched starter copy receives matching guidance. */
+function categorize(notes: Note[]): Note[] {
+	return notes.map((note) => {
+		if (isCategory(note.category)) return note;
+		const category = chooseCategory(note.title, note.content);
+		const sample = initial.find((sample) => sample.id === note.id);
+		const untouched =
+			sample?.title === note.title && sample?.content === note.content;
+		return {
+			...note,
+			category,
+			content: untouched
+				? `${note.content} ${getCategory(category).guidance}`
+				: note.content,
+		};
+	});
+}
 /** Load stored notes and reject malformed JSON/schema instead of silently erasing it. */
 function read(): Note[] {
 	const raw = localStorage.getItem(KEY);
 	if (raw === null) {
-		const notes = structuredClone(initial);
+		const notes = categorize(structuredClone(initial));
 		write(notes);
 		return notes;
 	}
@@ -83,7 +101,8 @@ function read(): Note[] {
 				typeof n.id === "string" &&
 				typeof n.title === "string" &&
 				typeof n.content === "string" &&
-				validImage(n.image),
+				validImage(n.image) &&
+				(n.category === undefined || isCategory(n.category)),
 		)
 	)
 		throw new Error("Invalid stored notes");
@@ -104,7 +123,9 @@ function read(): Note[] {
 		notes.push(...structuredClone(missing));
 		write(notes);
 	}
-	return notes;
+	const categorized = categorize(notes);
+	if (notes.some((note) => !isCategory(note.category))) write(categorized);
+	return categorized;
 }
 /** Persist the entire collection; storage quota/security errors reach guarded(). */
 function write(notes: Note[]) {
@@ -122,7 +143,8 @@ function valid(input: unknown): input is NoteInput {
 		n.title.trim().length <= TITLE_LIMIT &&
 		n.content.trim().length > 0 &&
 		n.content.trim().length <= CONTENT_LIMIT &&
-		validImage(n.image)
+		validImage(n.image) &&
+		(n.category === undefined || isCategory(n.category))
 	);
 }
 /** Convert synchronous storage failures into an HTTP 500 with a readable message. */
@@ -164,6 +186,7 @@ export const handlers = [
 				title: input.title.trim(),
 				content: input.content.trim(),
 				image: input.image ?? null,
+				category: input.category ?? chooseCategory(input.title, input.content),
 			};
 			write([note, ...read()]);
 			return HttpResponse.json(note, { status: 201 });
@@ -193,6 +216,10 @@ export const handlers = [
 				title: input.title.trim(),
 				content: input.content.trim(),
 				image: input.image ?? null,
+				category:
+					input.category ??
+					notes[index].category ??
+					chooseCategory(input.title, input.content),
 			};
 			notes[index] = note;
 			write(notes);
