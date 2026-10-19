@@ -14,10 +14,11 @@
 	--accent: #14aff1;
 	--badge: #163547;
 	--card-border: #ffffff26;
-	--card-1: #102b39;
-	--card-2: #292619;
-	--card-3: #1b222d;
-	--card-4: #182a30;
+	--card-shadow: 0 8px 24px #00000024;
+	--card-1: #151e26;
+	--card-2: #1c2025;
+	--card-3: #171e27;
+	--card-4: #151f24;
 	--danger: #ffb9ac;
 	--error-bg: #492c27;
 }
@@ -36,10 +37,11 @@
 	--accent: #007aa8;
 	--badge: #d5f1fc;
 	--card-border: #00000026;
-	--card-1: #d5f1fc;
-	--card-2: #fff2c7;
-	--card-3: #e9edf3;
-	--card-4: #e2f4f7;
+	--card-shadow: 0 8px 24px #00000008;
+	--card-1: #ffffff;
+	--card-2: #fffefa;
+	--card-3: #fbfcfe;
+	--card-4: #f9fdff;
 	--danger: #792d20;
 	--error-bg: #f7ded7;
 }
@@ -241,25 +243,47 @@ h2 {
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 18px;
 }
+/* Neutral card surfaces match the workspace; restrained brand stripes add variety
+   without turning the notes into unrelated blocks of color. */
 .note {
+	--card-accent: #14aff1;
 	border-radius: 10px;
 	padding: 25px;
 	min-height: 270px;
 	display: flex;
 	flex-direction: column;
 	border: 1px solid var(--card-border);
+	border-top: 3px solid var(--card-accent);
+	box-shadow: var(--card-shadow);
+}
+/* Highlight the whole card when its actions receive keyboard focus. */
+.note:focus-within {
+	outline: 2px solid var(--focus);
+	outline-offset: 3px;
 }
 .color-0 {
 	background: var(--card-1);
 }
 .color-1 {
+	--card-accent: #ffbe11;
 	background: var(--card-2);
 }
 .color-2 {
+	--card-accent: #007aa8;
 	background: var(--card-3);
 }
 .color-3 {
 	background: var(--card-4);
+}
+/* Repeat the stripe as a small decorative marker beside the note label. */
+.note-label::before {
+	content: "";
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	margin-right: 8px;
+	border-radius: 50%;
+	background: var(--card-accent);
 }
 .note-label {
 	font-size: 9px;
