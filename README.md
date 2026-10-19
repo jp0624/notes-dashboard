@@ -44,7 +44,7 @@ The committed lockfile pins the resolved dependencies. The generated MSW worker 
 
 **Confirmed writes.** I update the list after the API succeeds. Optimistic updates are optional, and for this exercise predictable failure behavior is more useful than adding rollback logic. Failed saves retain the draft; failed deletes keep the card visible.
 
-**Plain CSS.** The visual design uses a quiet paper palette, readable cards, and layouts that collapse from three columns to one. No UI framework or external fonts are needed.
+**Plain CSS.** The visual design adapts Karbon Digital’s cyan (#14AFF1), yellow (#FFBE11), black, white, and pale gray (#F7F7FA) palette into light and dark themes, with readable tinted cards and layouts that collapse from three columns to one. No UI framework or external fonts are needed.
 
 ## Structure
 

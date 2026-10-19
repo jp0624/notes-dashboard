@@ -1,44 +1,45 @@
-/* Dark is the initial palette, even before JavaScript runs. Shared tokens also theme native dialogs. */
+/* Karbon Digital's site palette: cyan #14aff1, yellow #ffbe11, black,
+   white, and #f7f7fa. Dark surfaces and tinted cards adapt it for the dashboard. */
 :root {
 	color-scheme: dark;
-	--page: #161d19;
-	--surface: #202a24;
-	--text: #e8efe7;
-	--muted: #b9c8bb;
-	--primary: #b9d7a9;
-	--on-primary: #19251b;
-	--input: #18211b;
-	--border: #4e6153;
-	--focus: #e6b47e;
-	--accent: #e6b47e;
-	--badge: #334637;
+	--page: #0b0d10;
+	--surface: #15191f;
+	--text: #f7f7fa;
+	--muted: #b8c2ce;
+	--primary: #14aff1;
+	--on-primary: #000000;
+	--input: #10141a;
+	--border: #4b5969;
+	--focus: #ffbe11;
+	--accent: #14aff1;
+	--badge: #163547;
 	--card-border: #ffffff26;
-	--card-green: #2b392b;
-	--card-peach: #403329;
-	--card-blue: #293b38;
-	--card-purple: #37313f;
+	--card-1: #102b39;
+	--card-2: #292619;
+	--card-3: #1b222d;
+	--card-4: #182a30;
 	--danger: #ffb9ac;
 	--error-bg: #492c27;
 }
-/* The light palette retains the original paper-inspired design. */
+/* Brand neutrals anchor light mode; deeper cyan keeps small accents readable. */
 :root[data-theme="light"] {
 	color-scheme: light;
-	--page: #f5f3ed;
-	--surface: #faf9f4;
-	--text: #25372e;
-	--muted: #59644f;
-	--primary: #253e30;
-	--on-primary: #ffffff;
-	--input: #fffefa;
-	--border: #bec5b8;
-	--focus: #a75d28;
-	--accent: #b66b36;
-	--badge: #e4e7db;
-	--card-border: #00000013;
-	--card-green: #e7ebd8;
-	--card-peach: #f1e2cf;
-	--card-blue: #dfe8e4;
-	--card-purple: #e8e2ee;
+	--page: #f7f7fa;
+	--surface: #ffffff;
+	--text: #000000;
+	--muted: #4b5563;
+	--primary: #14aff1;
+	--on-primary: #000000;
+	--input: #ffffff;
+	--border: #7b8490;
+	--focus: #007aa8;
+	--accent: #007aa8;
+	--badge: #d5f1fc;
+	--card-border: #00000026;
+	--card-1: #d5f1fc;
+	--card-2: #fff2c7;
+	--card-3: #e9edf3;
+	--card-4: #e2f4f7;
 	--danger: #792d20;
 	--error-bg: #f7ded7;
 }
@@ -249,16 +250,16 @@ h2 {
 	border: 1px solid var(--card-border);
 }
 .color-0 {
-	background: var(--card-green);
+	background: var(--card-1);
 }
 .color-1 {
-	background: var(--card-peach);
+	background: var(--card-2);
 }
 .color-2 {
-	background: var(--card-blue);
+	background: var(--card-3);
 }
 .color-3 {
-	background: var(--card-purple);
+	background: var(--card-4);
 }
 .note-label {
 	font-size: 9px;
@@ -304,7 +305,7 @@ h2 {
 }
 .secondary {
 	background: transparent;
-	color: var(--primary);
+	color: var(--text);
 	border-color: var(--border);
 }
 /* Empty/loading and recoverable error feedback. */
@@ -329,7 +330,7 @@ h2 {
 }
 /* Native modal backdrop, editor fields, and action row. */
 dialog::backdrop {
-	background: #15231b88;
+	background: #00000099;
 }
 dialog {
 	width: min(540px, calc(100% - 30px));

@@ -19,7 +19,7 @@ export function useTheme() {
 		document.documentElement.dataset.theme = theme;
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute("content", theme === "dark" ? "#161d19" : "#f5f3ed");
+			?.setAttribute("content", theme === "dark" ? "#0b0d10" : "#f7f7fa");
 		try {
 			localStorage.setItem(THEME_KEY, theme);
 		} catch {
