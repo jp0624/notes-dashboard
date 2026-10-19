@@ -40,6 +40,7 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 	// Intercept Escape so an in-flight save cannot be hidden by dismissing the dialog.
 	return (
 		<dialog
+			className="m-auto max-h-[85vh] w-[min(540px,calc(100%-30px))] overflow-y-auto rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-7 text-[color:var(--text)] backdrop:bg-black/60"
 			ref={ref}
 			aria-labelledby="editor-title"
 			onCancel={(e) => {
@@ -67,11 +68,16 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 						onClose();
 				}}
 			>
-				<div className="editor-heading">
-					<h2 id="editor-title">{note ? "Edit your note" : "A new thought"}</h2>
+				<div className="flex items-center justify-between">
+					<h2
+						className="m-0 text-xl tracking-[-0.5px] font-semibold"
+						id="editor-title"
+					>
+						{note ? "Edit your note" : "A new thought"}
+					</h2>
 					<button
 						type="button"
-						className="icon"
+						className="cursor-pointer border-0 bg-transparent px-1.5 py-0 text-[25px] text-inherit hover:brightness-90 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-4"
 						aria-label="Close editor"
 						onClick={onClose}
 						disabled={busy || processing}
@@ -79,10 +85,18 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 						×
 					</button>
 				</div>
-				<p className="muted">A place for whatever is on your mind.</p>
+				<p className="text-[13px] text-[color:var(--muted)]">
+					A place for whatever is on your mind.
+				</p>
 				{/* Controlled inputs mirror typed text into state; maxLength enforces shared limits. */}
-				<label htmlFor="title">Title</label>
+				<label
+					className="mt-[18px] mb-[7px] block text-[13px] font-semibold"
+					htmlFor="title"
+				>
+					Title
+				</label>
 				<input
+					className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] placeholder:opacity-100 focus:outline-2 focus:outline-[var(--focus)] focus:outline-offset-2 w-full"
 					id="title"
 					autoFocus
 					required
@@ -93,8 +107,14 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					placeholder="Give it a name"
 				/>
 				{/* New notes start with a random category; users can select a better fit. */}
-				<label htmlFor="category">Category</label>
+				<label
+					className="mt-[18px] mb-[7px] block text-[13px] font-semibold"
+					htmlFor="category"
+				>
+					Category
+				</label>
 				<select
+					className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] placeholder:opacity-100 focus:outline-2 focus:outline-[var(--focus)] focus:outline-offset-2 w-full"
 					id="category"
 					value={category}
 					disabled={busy || processing}
@@ -106,8 +126,14 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 						</option>
 					))}
 				</select>
-				<label htmlFor="content">Content</label>
+				<label
+					className="mt-[18px] mb-[7px] block text-[13px] font-semibold"
+					htmlFor="content"
+				>
+					Content
+				</label>
 				<textarea
+					className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] placeholder:opacity-100 focus:outline-2 focus:outline-[var(--focus)] focus:outline-offset-2 w-full resize-y"
 					id="content"
 					required
 					maxLength={CONTENT_LIMIT}
@@ -118,12 +144,18 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					placeholder="Start writing…"
 				/>
 				{/* Character count and separate API/validation errors provide immediate feedback. */}
-				<p className="counter">
+				<p className="text-right text-[11px] text-[color:var(--muted)]">
 					{content.length.toLocaleString()} / {CONTENT_LIMIT.toLocaleString()}
 				</p>
 				{/* File selection changes only the draft; the API persists it when Save is pressed. */}
-				<label htmlFor="note-image">Image (optional)</label>
+				<label
+					className="mt-[18px] mb-[7px] block text-[13px] font-semibold"
+					htmlFor="note-image"
+				>
+					Image (optional)
+				</label>
 				<input
+					className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-[color:var(--text)] placeholder:text-[color:var(--muted)] placeholder:opacity-100 focus:outline-2 focus:outline-[var(--focus)] focus:outline-offset-2 w-full text-[13px] file:mr-2.5 file:cursor-pointer file:rounded file:border-0 file:bg-[var(--primary)] file:px-2.5 file:py-2 file:text-[color:var(--on-primary)]"
 					id="note-image"
 					type="file"
 					accept="image/jpeg,image/png,image/webp"
@@ -148,18 +180,22 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 						}
 					}}
 				/>
-				<p id="image-help" className="muted">
+				<p id="image-help" className="text-[13px] text-[color:var(--muted)]">
 					JPEG, PNG, or WebP, up to 10 MB. Images are resized for browser
 					storage.
 				</p>
 				{processing && <p role="status">Preparing image…</p>}
 				{imageError && <p role="alert">{imageError}</p>}
 				{image && (
-					<div className="image-preview">
-						<img src={image} alt="Selected note image preview" />
+					<div className="my-[15px] grid gap-2.5 [&>button]:justify-self-start">
+						<img
+							className="max-h-[220px] w-full rounded-lg bg-[var(--input)] object-contain"
+							src={image}
+							alt="Selected note image preview"
+						/>
 						<button
 							type="button"
-							className="secondary"
+							className="cursor-pointer rounded-lg border border-[var(--border)] bg-transparent px-5 py-[11px] font-semibold text-[color:var(--text)] hover:brightness-90 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-4"
 							disabled={busy || processing}
 							onClick={() => {
 								setImage(null);
@@ -171,22 +207,28 @@ export function NoteEditor({ note, error, busy, onSave, onClose }: Props) {
 					</div>
 				)}
 				{error && (
-					<p role="alert" className="error">
+					<p
+						role="alert"
+						className="relative z-2 mb-4 rounded-lg bg-[var(--error-bg)] px-[18px] py-3 text-[color:var(--danger)]"
+					>
 						{error}
 					</p>
 				)}
 				{validation && <p role="alert">{validation}</p>}
 				{/* Cancel never submits; the default submit button triggers the form handler. */}
-				<div className="editor-actions">
+				<div className="mt-5 flex justify-end gap-2.5">
 					<button
 						type="button"
-						className="secondary"
+						className="cursor-pointer rounded-lg border border-[var(--border)] bg-transparent px-5 py-[11px] font-semibold text-[color:var(--text)] hover:brightness-90 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-4"
 						onClick={onClose}
 						disabled={busy || processing}
 					>
 						Cancel
 					</button>
-					<button disabled={busy || processing}>
+					<button
+						className="cursor-pointer rounded-lg border border-[var(--primary)] bg-[var(--primary)] px-5 py-[11px] font-semibold text-[color:var(--on-primary)] hover:brightness-90 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-[var(--focus)] focus-visible:outline-offset-4"
+						disabled={busy || processing}
+					>
 						{busy ? "Saving…" : "Save note"}
 					</button>
 				</div>

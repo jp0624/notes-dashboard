@@ -35,7 +35,7 @@ npm run preview  # Serve the production build; use the printed URL
 
 **React + TypeScript + Vite** keep the client small and the contracts explicit. Functional components and hooks handle UI state; `NotesProvider` owns the shared collection, requests, and errors. Drafts, search, and editor selection remain local.
 
-**Tailwind CSS** is compiled through `@tailwindcss/vite`. `src/styles.css` imports Tailwind and uses `@apply` to compose component layouts and controls. Custom CSS remains for shared theme variables, the hero gradient, native pseudo-elements, and category accents. `notes-grid` uses Tailwind responsive utilities; keeping its semantic name avoids colliding with Tailwind's `grid` utility.
+**Tailwind CSS** is compiled through `@tailwindcss/vite`. Layout, spacing, typography, forms, card accents, responsive breakpoints, focus states and native file/dialog styling are literal utility classes in `App.tsx` and `NoteEditor.tsx`. There are no `@apply` component wrappers. `src/styles.css` only imports Tailwind, defines shared theme variables/base typography, and supplies the layered hero background. Category colors still use `--card-accent` for dynamic values with statically discoverable utilities.
 
 **MSW** is the assessment's allowed mock API option. Components do not read or write notes directly to storage. The browser worker intercepts fetch; the same handlers run through MSW's Node adapter in tests. The worker intentionally also starts in production preview so the demo remains self-contained.
 
@@ -51,7 +51,7 @@ npm run preview  # Serve the production build; use the printed URL
 | `src/categories.ts` | Category IDs, colors and relevant random selection |
 | `src/hooks/useTheme.ts` | Saved theme and document palette |
 | `src/utils/images.ts` | Image resizing and accepted image validation |
-| `src/styles.css` | Tailwind compositions and custom design tokens |
+| `src/styles.css` | Tailwind import, theme tokens and hero background |
 
 ## API and persistence
 
