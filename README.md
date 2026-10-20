@@ -1,12 +1,12 @@
 # Fieldnotes Notes Dashboard
 
-A React and TypeScript notes dashboard built for the KD AI Engineering Lead Assessment. It supports API-backed CRUD, optimistic updates with rollback, search, categories, cover images, and light/dark themes.
+A React and TypeScript notes workspace created for the KD AI Engineering Lead Assessment. It supports API-backed CRUD, optimistic updates with rollback, search, categories, cover images, and light/dark themes.
 
 ## Live demo
 
 [Open the Notes Dashboard](https://notes-dashboard-int.vercel.app/)
 
-Notes and theme preferences are saved in your browser on this origin. Use the live demo for an interview walkthrough, or follow the local setup below.
+Notes and theme preferences are saved in your browser on this origin. The local setup below runs the same application.
 
 ## Run locally
 
@@ -41,7 +41,7 @@ npm run preview  # Serve the production build; use the printed URL
 
 **React + TypeScript + Vite** keep the client small and the contracts explicit. Functional components and hooks handle UI state; `NotesProvider` owns the shared collection, requests, and errors. Drafts, search, and editor selection remain local.
 
-**Tailwind CSS** is compiled through `@tailwindcss/vite`. Layout, spacing, typography, forms, card accents, responsive breakpoints, focus states and native file/dialog styling are literal utility classes in `App.tsx` and `NoteEditor.tsx`. There are no `@apply` component wrappers. `src/styles.css` only imports Tailwind, defines shared theme variables/base typography, and supplies the layered hero background. Category colors still use `--card-accent` for dynamic values with statically discoverable utilities.
+**Tailwind CSS** is compiled through `@tailwindcss/vite`. Layout, spacing, typography, forms, card accents, responsive breakpoints, focus states and native file/dialog styling are literal utility classes in `App.tsx` and `NoteEditor.tsx`. There are no `@apply` component wrappers. `src/styles.css` only imports Tailwind, defines shared theme variables/base typography, and supplies the layered hero background. Category colors still use `--card-accent` for changing values with statically discoverable utilities.
 
 **MSW** is the assessment's allowed mock API option. Components do not read or write notes directly to storage. The browser worker intercepts fetch; the same handlers run through MSW's Node adapter in tests. The worker intentionally also starts in production preview so the demo remains self-contained.
 
